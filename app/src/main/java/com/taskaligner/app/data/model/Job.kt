@@ -9,5 +9,11 @@ data class Job(
     val postedBy: String,
     val posterId: String,
     val timeAgo: String,
-    val badges: List<Badge> = emptyList()
+    val badges: List<Badge> = emptyList(),
+    val status: JobStatus = JobStatus.PENDING,
+    val assignedFreelancerId: String? = null
 )
+
+enum class JobStatus {
+    PENDING, PROPOSAL_SUBMITTED, FREELANCER_ASSIGNED, TASK_DELEGATION, COMPLETED, REVIEW
+}

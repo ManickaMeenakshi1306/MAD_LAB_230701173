@@ -19,3 +19,16 @@ val TextSecondaryDark = Color(0xFF94A3B8)
 val DividerColor = Color(0xFFE2E8F0)
 val WarningColor = Color(0xFFF59E0B)
 val ErrorColor = Color(0xFFEF4444)
+
+val PrimaryGradient = androidx.compose.ui.graphics.Brush.linearGradient(
+    colors = listOf(PrimaryBlue, PrimaryTeal)
+)
+val SuccessGradient = androidx.compose.ui.graphics.Brush.linearGradient(
+    colors = listOf(PrimaryTeal, PrimaryGreen)
+)
+val WarningGradient = androidx.compose.ui.graphics.Brush.linearGradient(
+    colors = listOf(Color(0xFFF59E0B), Color(0xFFD97706))
+)
+val DangerGradient = androidx.compose.ui.graphics.Brush.linearGradient(
+    colors = listOf(Color(0xFFEF4444), Color(0xFFB91C1C))
+)

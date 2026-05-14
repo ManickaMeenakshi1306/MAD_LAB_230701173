@@ -13,6 +13,10 @@ import com.taskaligner.app.ui.screens.bids.JobBidsScreen
 import com.taskaligner.app.ui.screens.chat.ChatScreen
 import com.taskaligner.app.ui.screens.auth.LoginScreen
 import com.taskaligner.app.ui.screens.auth.OnboardingScreen
+import com.taskaligner.app.ui.screens.finance.EarningsScreen
+import com.taskaligner.app.ui.screens.wellbeing.StressTrackerScreen
+import com.taskaligner.app.ui.screens.games.GameScreen
+import com.taskaligner.app.ui.screens.tasks.TaskDelegationScreen
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 
@@ -51,7 +55,10 @@ fun TaskAlignerNavGraph(
                 onNavigateToJobs = { navController.navigate(Screen.Jobs.route) },
                 onNavigateToPost = { navController.navigate(Screen.Post.route) },
                 onNavigateToProfile = { navController.navigate(Screen.Profile.route) },
-                onNavigateToJobBids = { jobId -> navController.navigate(Screen.JobBids.createRoute(jobId)) }
+                onNavigateToJobBids = { jobId -> navController.navigate(Screen.JobBids.createRoute(jobId)) },
+                onNavigateToEarnings = { navController.navigate(Screen.Earnings.route) },
+                onNavigateToStressTracker = { navController.navigate(Screen.StressTracker.route) },
+                onNavigateToGame = { navController.navigate(Screen.Game.route) }
             )
         }
         
@@ -96,6 +103,29 @@ fun TaskAlignerNavGraph(
             val bidId = backStackEntry.arguments?.getString("bidId") ?: ""
             ChatScreen(
                 bidId = bidId,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Earnings.route) {
+            EarningsScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.StressTracker.route) {
+            StressTrackerScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.Game.route) {
+            GameScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable(
+            route = Screen.TaskDelegation.route,
+            arguments = listOf(navArgument("jobId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val jobId = backStackEntry.arguments?.getString("jobId") ?: ""
+            TaskDelegationScreen(
+                jobId = jobId,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

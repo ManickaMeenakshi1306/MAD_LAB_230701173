@@ -44,10 +44,6 @@ private val LightColorScheme = lightColorScheme(
     onSurface = TextPrimaryLight
 )
 
-val PrimaryGradient = Brush.linearGradient(
-    colors = listOf(PrimaryBlue, PrimaryTeal, PrimaryGreen)
-)
-
 @Composable
 fun TaskAlignerTheme(
 

@@ -18,6 +18,7 @@ import com.taskaligner.app.ui.theme.TaskAlignerTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.taskaligner.app.data.AppState.initialize(this)
         setContent {
             TaskAlignerTheme {
                 val navController = rememberNavController()

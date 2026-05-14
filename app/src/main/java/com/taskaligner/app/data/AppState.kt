@@ -8,9 +8,39 @@ import com.taskaligner.app.data.model.Bid
 import com.taskaligner.app.data.model.BidStatus
 import com.taskaligner.app.data.model.User
 import com.taskaligner.app.data.model.UserRole
+import android.content.Context
 import java.util.UUID
+import androidx.lifecycle.ViewModel
+import com.taskaligner.app.data.local.AppDatabase
+import com.taskaligner.app.data.local.UserEntity
+import com.taskaligner.app.data.local.JobEntity
+import com.taskaligner.app.data.local.EarningEntity
+import com.taskaligner.app.data.local.StressLogEntity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object AppState {
+    var database: AppDatabase? = null
+        private set
+    private val scope = CoroutineScope(Dispatchers.IO)
+
+    fun initialize(context: Context) {
+        if (database == null) {
+            database = AppDatabase.getDatabase(context)
+            
+            // Seed initial data if needed
+            scope.launch {
+                database?.userDao()?.insertUser(
+                    UserEntity(freelancerUser.id, freelancerUser.name, "FREELANCER", freelancerUser.headline)
+                )
+                database?.userDao()?.insertUser(
+                    UserEntity(clientUser.id, clientUser.name, "CLIENT", clientUser.headline)
+                )
+            }
+        }
+    }
+
     // Predefined Users for prototyping
     val freelancerUser = User(
         id = "u1",
@@ -28,7 +58,7 @@ object AppState {
         badges = SampleData.clientBadges
     )
 
-    var currentUser by mutableStateOf<User?>(null)
+    var currentUser by mutableStateOf<User?>(freelancerUser) // Default to freelancer for demo
     
     // Default to dark mode is false (light mode), let user toggle
     var isDarkMode by mutableStateOf(false)
@@ -39,7 +69,6 @@ object AppState {
     val bids = mutableStateListOf<Bid>()
 
     fun toggleRole() {
-        // Obsolete, left to avoid compilation errors during refactoring
         currentUser = if (currentRole == UserRole.FREELANCER) clientUser else freelancerUser
     }
     
@@ -64,6 +93,39 @@ object AppState {
         val index = bids.indexOfFirst { it.id == bidId }
         if (index != -1) {
             bids[index] = bids[index].copy(status = BidStatus.APPROVED)
+            
+            // Add to earnings when approved
+            val bid = bids[index]
+            val amountStr = bid.amount.replace("$", "").replace("/hr", "").toDoubleOrNull() ?: 0.0
+            scope.launch {
+                database?.earningDao()?.insertEarning(
+                    EarningEntity(
+                        id = UUID.randomUUID().toString(),
+                        userId = bid.freelancerId,
+                        jobId = bid.jobId,
+                        amount = amountStr,
+                        timestamp = System.currentTimeMillis()
+                    )
+                )
+            }
+        }
+    }
+
+    fun getEarnings() = database?.earningDao()?.getEarningsForUser(currentUser?.id ?: "")
+
+    fun getStressLogs() = database?.stressLogDao()?.getStressLogsForUser(currentUser?.id ?: "")
+
+    fun logStress(level: String, note: String) {
+        scope.launch {
+            database?.stressLogDao()?.insertStressLog(
+                StressLogEntity(
+                    id = UUID.randomUUID().toString(),
+                    userId = currentUser?.id ?: "guest",
+                    level = level,
+                    note = note,
+                    timestamp = System.currentTimeMillis()
+                )
+            )
         }
     }
     

@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,10 +26,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.taskaligner.app.data.AppState
 import com.taskaligner.app.data.SampleData
 import com.taskaligner.app.data.model.UserRole
@@ -36,13 +41,24 @@ import com.taskaligner.app.ui.components.JobCard
 import com.taskaligner.app.ui.components.QuickActionButton
 import com.taskaligner.app.ui.components.RoleToggle
 import com.taskaligner.app.ui.components.BidDialog
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Spa
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.taskaligner.app.ui.theme.PrimaryGradient
+import com.taskaligner.app.ui.theme.SuccessGradient
+import androidx.compose.ui.graphics.Brush
+
 
 @Composable
 fun HomeScreen(
     onNavigateToJobs: () -> Unit,
     onNavigateToPost: () -> Unit,
     onNavigateToProfile: () -> Unit,
-    onNavigateToJobBids: (String) -> Unit = {}
+    onNavigateToJobBids: (String) -> Unit = {},
+    onNavigateToEarnings: () -> Unit = {},
+    onNavigateToStressTracker: () -> Unit = {},
+    onNavigateToGame: () -> Unit = {}
 ) {
     val currentRole = AppState.currentRole
     var selectedJobIdForBid by remember { mutableStateOf<String?>(null) }
@@ -89,9 +105,20 @@ fun HomeScreen(
                     role = role,
                     onNavigateToJobs = onNavigateToJobs,
                     onNavigateToPost = onNavigateToPost,
-                    onNavigateToProfile = onNavigateToProfile
+                    onNavigateToProfile = onNavigateToProfile,
+                    onNavigateToEarnings = onNavigateToEarnings,
+                    onNavigateToStressTracker = onNavigateToStressTracker,
+                    onNavigateToGame = onNavigateToGame
                 )
             }
+        }
+
+        item {
+            InsightsSection(
+                onEarningsClick = onNavigateToEarnings,
+                onStressClick = onNavigateToStressTracker,
+                onGameClick = onNavigateToGame
+            )
         }
 
         item {
@@ -180,19 +207,88 @@ private fun QuickActionsRow(
     role: UserRole,
     onNavigateToJobs: () -> Unit,
     onNavigateToPost: () -> Unit,
-    onNavigateToProfile: () -> Unit
+    onNavigateToProfile: () -> Unit,
+    onNavigateToEarnings: () -> Unit,
+    onNavigateToStressTracker: () -> Unit,
+    onNavigateToGame: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         if (role == UserRole.FREELANCER) {
-            QuickActionButton(icon = Icons.Default.Search, label = "Find Work", onClick = onNavigateToJobs)
-            QuickActionButton(icon = Icons.Default.Person, label = "Profile", onClick = onNavigateToProfile)
+            QuickActionButton(icon = Icons.Default.Search, label = "Work", onClick = onNavigateToJobs)
+            QuickActionButton(icon = Icons.Default.AccountBalanceWallet, label = "Earnings", onClick = onNavigateToEarnings)
+            QuickActionButton(icon = Icons.Default.Spa, label = "Wellness", onClick = onNavigateToStressTracker)
+            QuickActionButton(icon = Icons.Default.AutoAwesome, label = "Games", onClick = onNavigateToGame)
         } else {
-            QuickActionButton(icon = Icons.Default.Add, label = "Create", onClick = onNavigateToPost)
+            QuickActionButton(icon = Icons.Default.Add, label = "Post", onClick = onNavigateToPost)
             QuickActionButton(icon = Icons.Default.Search, label = "Talent", onClick = onNavigateToJobs)
-            QuickActionButton(icon = Icons.Default.Person, label = "Profile", onClick = onNavigateToProfile)
+            QuickActionButton(icon = Icons.Default.Spa, label = "Wellness", onClick = onNavigateToStressTracker)
+        }
+    }
+}
+
+@Composable
+private fun InsightsSection(
+    onEarningsClick: () -> Unit,
+    onStressClick: () -> Unit,
+    onGameClick: () -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text(
+            text = "Your Insights",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            InsightCard(
+                title = "Earnings",
+                value = "$12.4k",
+                icon = Icons.Default.AccountBalanceWallet,
+                gradient = PrimaryGradient,
+                modifier = Modifier.weight(1f),
+                onClick = onEarningsClick
+            )
+            InsightCard(
+                title = "Stress",
+                value = "Medium",
+                icon = Icons.Default.Spa,
+                gradient = SuccessGradient,
+                modifier = Modifier.weight(1f),
+                onClick = onStressClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun InsightCard(
+    title: String,
+    value: String,
+    icon: ImageVector,
+    gradient: androidx.compose.ui.graphics.Brush,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    GradientCard(
+        modifier = modifier.height(100.dp),
+        gradient = gradient,
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(icon, null, tint = Color.White.copy(alpha = 0.8f), modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(title, color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+            }
+            Text(value, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
         }
     }
 }
